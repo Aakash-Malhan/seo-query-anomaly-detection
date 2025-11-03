@@ -11,18 +11,18 @@ from collections import Counter
 RANDOM_STATE = 42
 REQUIRED_COLS = ["Top queries", "Clicks", "Impressions", "CTR", "Position"]
 
-# ---------- IO helpers ----------
+# IO helpers
 def read_csv_any(file_obj_or_path):
     """Accepts gr.File (temp path) or a string path; returns DataFrame."""
     if file_obj_or_path is None:
         raise ValueError("No CSV provided.")
-    if hasattr(file_obj_or_path, "name"):          # gradio File object
+    if hasattr(file_obj_or_path, "name"):          
         path = file_obj_or_path.name
     else:
         path = str(file_obj_or_path)
     return pd.read_csv(path)
 
-# ---------- Cleaning / Features ----------
+# Cleaning / Features
 def _clean_df(df: pd.DataFrame) -> pd.DataFrame:
     # Normalize header names
     df = df.rename(columns={c: c.strip() for c in df.columns})
@@ -116,7 +116,7 @@ def _proxy_prec_k(df, scores, k=50):
     k = int(min(k, len(order)))
     return float(proxy.iloc[order[:k]].mean()), k
 
-# ---------- Word freq (robust tokenizer) ----------
+# Word freq
 STOP = {
     "the","a","an","to","and","of","in","on","for","with","how","can",
     "is","are","from","by","code","using"
@@ -142,12 +142,12 @@ def word_freq_figure(series: pd.Series):
     word_df = pd.DataFrame(freq, columns=["word","freq"])
     return px.bar(word_df, x="word", y="freq", title="Top 20 Words in Queries")
 
-# ---------- Pipeline ----------
+# Pipeline
 def run_pipeline(file_or_default, use_default, contamination=0.01, n_estimators=200, topk=100):
     """file_or_default is gr.File or None. If use_default=True, read bundled Queries.csv."""
     try:
         if use_default:
-            df = pd.read_csv("Queries.csv")  # must exist in Space root
+            df = pd.read_csv("Queries.csv")  
         else:
             df = read_csv_any(file_or_default)
         df = _clean_df(df)
@@ -189,7 +189,7 @@ def run_pipeline(file_or_default, use_default, contamination=0.01, n_estimators=
 
     return heat, hist, words, pretty, file_out, msg
 
-# ---------- UI ----------
+# UI
 with gr.Blocks(title="SEO Query Anomaly Detection") as demo:
     gr.Markdown("# SEO Query Anomaly Detection\nUpload your Google Search Console CSV or use the bundled default to detect query-level anomalies.")
 
